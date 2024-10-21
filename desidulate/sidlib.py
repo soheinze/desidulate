@@ -157,16 +157,77 @@ def squeeze_diffs(df, diff_cols, fill_value=0):
 
 
 # Read a VICE "-sounddev dump" register dump (emulator or vsid)
-def reg2state(snd_log_name, nrows=(10 * 1e6)):
+def reg2state(snd_log_name, dump_type, nrows=(10 * 1e6)):
 
-    def compress_writes():
+    def create_reg_dict():
+
+        mapping_dict = {}
+
+        for i in range(29):
+
+            if i < 16:
+                hx = f'$D40{i:x}'
+                hx = hx.upper()
+                mapping_dict[hx] = i
+            else:
+                hx = f'$D4{i:x}'
+                hx = hx.upper()
+                mapping_dict[hx] = i
+
+        return mapping_dict
+
+    def create_val_dict(num):
+
+        mapping_dict={}
+
+        for i in range (num):
+            if i < 16:
+                hx = f'$0{i:x}'
+                hx = hx.upper()
+                mapping_dict[hx]=i
+            else:
+                hx = f'${i:x}'
+                hx = hx.upper()
+                mapping_dict[hx]=i
+
+        return mapping_dict
+
+    def jsid2reg():
+
+        df = pd.read_csv(snd_log_name,
+                         usecols=["clock_offset", "reg", "val"],
+                         encoding='iso-8859-1',
+                         header=0,
+                         # match the naming in desidulate
+                         names=["clock", "clock_offset", "reg", "val", "description"],
+                         skipinitialspace=True,
+                         dtype={'clock': np.uint64, 'clock_offset': np.uint64}
+                         )
+
+        # create dictionaries for parsing
+        reg_dict = create_reg_dict()
+        val_dict = create_val_dict(256)
+
+        # Parse reg values
+        df['reg'] = df['reg'].map(reg_dict)
+
+        # Parse val values
+        df['val'] = df['val'].map(val_dict)
+
+        return df
+
+    def compress_writes(dump):
         logging.debug('reading %s', snd_log_name)
         # TODO: pyarrow can't do nrows
-        df = read_csv(
-            snd_log_name,
-            sep=' ',
-            names=['clock_offset', 'reg', 'val'],
-            dtype={'clock_offset': np.uint64, 'reg': np.uint8, 'val': np.uint8})[:int(nrows)]
+
+        if dump == 'jsid':
+            df = jsid2reg()
+        else:
+            df = read_csv(
+                snd_log_name,
+                sep=' ',
+                names=['clock_offset', 'reg', 'val'],
+                dtype={'clock_offset': np.uint64, 'reg': np.uint8, 'val': np.uint8})[:int(nrows)]
         logging.debug('read %u rows from %s', len(df), snd_log_name)
         df['clock'] = df['clock_offset'].cumsum()
         assert df['reg'].min() >= 0
@@ -235,7 +296,7 @@ def reg2state(snd_log_name, nrows=(10 * 1e6)):
         reg_df.drop(all_regs, axis=1, inplace=True)
         return reg_df
 
-    df = compress_writes()
+    df = compress_writes(dump_type)
     reg_df = decode_regs(df)
     df.drop(['reg', 'val'], axis=1, inplace=True)
     df = df.join(reg_df, on='clock')
