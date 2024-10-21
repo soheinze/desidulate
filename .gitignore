@@ -139,3 +139,12 @@ hvsc*
 
 AUTHORS
 ChangeLog
+.DS_Store
+.idea/desidulate.iml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/other.xml
+.idea/vcs.xml
+.idea/workspace.xml
