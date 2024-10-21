@@ -24,11 +24,13 @@ def main():
     parser.add_argument('--maxstates', default=int(10 * 1e6), help='maximum number of SID states to analyze')
     parser.add_argument('--dfext', default='zst', help='default dataframe extension')
     parser.add_argument('--maxprspeed', default=1, help='max prspeed to detect')
+    parser.add_argument('--dump_type', default='vsid',help='choose between vsid and jsid for data source')
+
     timer_args(parser)
     args = parser.parse_args()
 
     sid = get_sid(args.pal, args.cia)
-    df = reg2state(args.logfile, nrows=int(args.maxstates))
+    df = reg2state(args.logfile, args.dump_type, nrows=int(args.maxstates))
     ssf_log_df, ssf_df = state2ssfs(sid, df, maxprspeed=args.maxprspeed, near=sid.one_sample_cycles)
 
     for ext, filedf in (
