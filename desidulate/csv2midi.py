@@ -1,17 +1,8 @@
 import argparse
-import csv
-import hashlib
-import json
-import logging
 import multiprocessing
-import os
-import sys
 import pathlib
 import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
-
-from desidulate.sidinfo import sidinfo
-from desidulate import reg2ssf, ssf2midi
 
 MAX_WORKERS = int(multiprocessing.cpu_count() / 2)
 
@@ -42,8 +33,10 @@ def automate_process(root_path):
     # Directory to search for Sid Files as specified
     current = pathlib.Path(root_path)
 
-    # Gather all CSV files in the directory structure
-    csv_files = list(sorted(current.rglob('*.csv')))
+    # Find all CSV files in the root_path, excluding the 'DOCUMENTS' folder.
+    csv_files = sorted(
+        [file for file in current.rglob('*.csv') if 'DOCUMENTS' not in file.parts]
+    )
     print(f"{len(csv_files)} CSV files were found.")
 
     # Use a ProcessPoolExecutor to process files in parallel
@@ -59,7 +52,8 @@ def automate_process(root_path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--hvscdir', default='.', type=str, help='Path to HVSC or subfolder. Default is current working directory.')
+    parser.add_argument('--hvscdir', default='.', type=str,
+                        help='Path to HVSC or subfolder. Default is current working directory.')
     args = parser.parse_args()
     automate_process(args.hvscdir)
 
