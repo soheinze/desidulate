@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import time
 import os
 
-BASE_TIMEOUT = 240
+BASE_TIMEOUT = 444
 
 def log_unprocessed_file(file_path, reason):
     """

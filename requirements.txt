@@ -2,7 +2,11 @@ docker==6.1.3
 music21==9.1.0
 numpy==1.25.1
 pandas==2.0.3
-pyarrow==12.0.1
 pyresidfp==0.7.0
 scipy==1.11.1
-zstandard==0.21.0
+
+setuptools~=75.1.0
+six~=1.16.0
+wheel~=0.44.0
+importlib_metadata~=7.0.1
+desidulate~=1.0.4.dev154
