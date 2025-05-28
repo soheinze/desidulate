@@ -1,0 +1,7 @@
+[build-system]
+requires = [
+    "setuptools>=42",  # Mindestversion für PEP 517 Support
+    "wheel",
+    "pbr>=2.0.0"       # pbr hier als Build-Abhängigkeit deklarieren
+]
+build-backend = "setuptools.build_meta"

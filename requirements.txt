@@ -9,4 +9,3 @@ setuptools~=75.1.0
 six~=1.16.0
 wheel~=0.44.0
 importlib_metadata~=7.0.1
-desidulate~=1.0.4.dev154
